@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GradeGuru GPA Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at top left, #0d1117, #0b0f14 80%);
+      color: #f0f6fc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      margin-top: 40px;
+      font-size: 2.8em;
+      color: #58a6ff;
+      font-weight: 700;
+      text-align: center;
+      text-shadow: 0 0 15px rgba(88,166,255,0.4);
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 25px;
+      margin: 40px 0;
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    .calculator, .settings {
+      background: linear-gradient(145deg, #161b22, #1b222c);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      transition: all 0.3s ease;
+    }
+
+    .calculator:hover, .settings:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 40px rgba(88,166,255,0.2);
+    }
+
+    .calculator {
+      flex: 2;
+      min-width: 420px;
+    }
+
+    .settings {
+      flex: 1;
+      min-width: 260px;
+    }
+
+    h2 {
+      color: #58a6ff;
+      text-align: center;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .course-list {
+      margin-top: 25px;
+    }
+
+    .course {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+      align-items: center;
+      background-color: #1c2128;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 0 6px rgba(255,255,255,0.05);
+    }
+
+    input, select {
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #21262d;
+      color: #f0f6fc;
+      font-size: 0.95em;
+    }
+
+    input:focus, select:focus {
+      outline: 1px solid #58a6ff;
+      box-shadow: 0 0 5px #58a6ff;
+    }
+
+    button {
+      background-color: #238636;
+      color: white;
+      border: none;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-right: 10px;
+      margin-top: 15px;
+    }
+
+    button:hover {
+      background-color: #2ea043;
+      box-shadow: 0 0 10px rgba(46,160,67,0.6);
+      transform: translateY(-2px);
+    }
+
+    .results {
+      margin-top: 35px;
+      text-align: center;
+      background-color: #1b222c;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(88,166,255,0.1);
+    }
+
+    .gpa {
+      font-size: 1.3em;
+      margin-top: 10px;
+      font-weight: 600;
+      color: #79c0ff;
+      text-shadow: 0 0 10px rgba(121,192,255,0.3);
+    }
+
+    .grading-choice {
+      text-align: center;
+      background-color: #161b22;
+      padding: 20px 30px;
+      border-radius: 12px;
+      margin-top: 25px;
+      box-shadow: 0 0 15px rgba(88,166,255,0.1);
+      max-width: 400px;
+    }
+
+    .grading-choice h3 {
+      color: #58a6ff;
+      font-weight: 600;
+    }
+
+    footer {
+      color: #8b949e;
+      margin-bottom: 25px;
+      font-size: 0.9em;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>🎓 GradeGuru GPA Calculator</h1>
+
+  <div class="grading-choice">
+    <h3>Number Grades (0–100)</h3>
+    <p>Enter your grades and course levels below to get instant results!</p>
+  </div>
+
+  <div class="container">
+    <div class="calculator">
+      <h2>Add Your Courses</h2>
+      <div class="course-list" id="courseList"></div>
+      <button onclick="addCourse()">+ Add Course</button>
+      <button onclick="calculateGPA()">Calculate GPA</button>
+
+      <div class="results">
+        <div class="gpa" id="unweightedGPA">Unweighted GPA: -</div>
+        <div class="gpa" id="weightedGPA">Weighted GPA: -</div>
+      </div>
+    </div>
+
+    <div class="settings">
+      <h2>Weighted Scale Settings ⚙️</h2>
+      <label>Regular Max:
+        <input type="number" id="regularScale" value="4.0" step="0.1" />
+      </label><br><br>
+      <label>Honors Max:
+        <input type="number" id="honorsScale" value="4.5" step="0.1" />
+      </label><br><br>
+      <label>AP/IB Max:
+        <input type="number" id="apScale" value="5.0" step="0.1" />
+      </label>
+    </div>
+  </div>
+
+  <footer>© 2025 GradeGuru • Built for smarter students 🌟</footer>
+
+  <script>
+    const courseList = document.getElementById("courseList");
+
+    function addCourse() {
+      const div = document.createElement("div");
+      div.className = "course";
+      div.innerHTML = `
+        <input type="text" placeholder="Course name" />
+        <input type="number" min="0" max="100" placeholder="Grade %" />
+        <select>
+          <option value="regular">Regular</option>
+          <option value="honors">Honors</option>
+          <option value="ap">AP/IB</option>
+        </select>
+      `;
+      courseList.appendChild(div);
+    }
+
+    function calculateGPA() {
+      const courses = document.querySelectorAll(".course");
+      if (courses.length === 0) return;
+
+      let totalUnweighted = 0, totalWeighted = 0;
+
+      const regScale = parseFloat(document.getElementById("regularScale").value);
+      const honScale = parseFloat(document.getElementById("honorsScale").value);
+      const apScale = parseFloat(document.getElementById("apScale").value);
+
+      courses.forEach(course => {
+        const num = parseFloat(course.children[1].value);
+        const type = course.children[2].value;
+        if (isNaN(num)) return;
+
+        // Weighted scale (100 = 5.0, 99 = 4.9, etc.)
+        let weightedBase = 0;
+        if (num >= 100) weightedBase = 5.0;
+        else if (num >= 60) weightedBase = 1 + (num - 60) * 0.1;
+        else weightedBase = 0;
+
+        // Unweighted (standard 4.0 scale)
+        let unweightedBase = 0;
+        if (num >= 93) unweightedBase = 4.0;
+        else if (num >= 90) unweightedBase = 3.7;
+        else if (num >= 87) unweightedBase = 3.3;
+        else if (num >= 83) unweightedBase = 3.0;
+        else if (num >= 80) unweightedBase = 2.7;
+        else if (num >= 77) unweightedBase = 2.3;
+        else if (num >= 73) unweightedBase = 2.0;
+        else if (num >= 70) unweightedBase = 1.7;
+        else if (num >= 67) unweightedBase = 1.3;
+        else if (num >= 65) unweightedBase = 1.0;
+
+        let weightedMax = regScale;
+        if (type === "honors") weightedMax = honScale;
+        else if (type === "ap") weightedMax = apScale;
+
+        totalUnweighted += unweightedBase;
+        totalWeighted += (weightedBase / 5.0) * weightedMax;
+      });
+
+      const count = courses.length;
+      document.getElementById("unweightedGPA").textContent = 
+        `Unweighted GPA: ${(totalUnweighted / count).toFixed(2)}`;
+      document.getElementById("weightedGPA").textContent = 
+        `Weighted GPA: ${(totalWeighted / count).toFixed(2)}`;
+    }
+
+    addCourse();
+  </script>
+</body>
+</html>
